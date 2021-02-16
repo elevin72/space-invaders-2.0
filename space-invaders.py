@@ -32,7 +32,7 @@ colors = {
             "green" : (GREEN_SPACE_SHIP, G_LASER)
 }
 
-# ship class for game
+# ship classes for game
 class Ship():
     def __init__(self, x, y, health=100):
         self.x = x
@@ -58,9 +58,6 @@ class Enemy(Ship):
         self.color = color[random.randrange(0,3)]
         self.ship_img, self.laser_img = colors.get(self.color)
 
-        
-
-
 # main procedure
 def main():
     run = True
@@ -72,8 +69,7 @@ def main():
     ship = Player(300, 650)
     enemy = Enemy(100, 200)
     enemy2 = Enemy(200, 200)
-    velocity = 15
-    
+    velocity = 15    
 
     def redraw_window():
         WIN.blit(BG, (0,0))
