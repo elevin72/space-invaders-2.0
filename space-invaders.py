@@ -3,6 +3,7 @@ import os
 import random
 import time
 
+# font intializer
 pygame.font.init()
 # Window data
 WIDTH, HEIGHT = (750, 750)
