@@ -25,8 +25,14 @@ B_LASER = pygame.image.load(os.path.join("assets", "pixel_laser_blue.png"))
 G_LASER = pygame.image.load(os.path.join("assets", "pixel_laser_green.png"))
 Y_LASER = pygame.image.load(os.path.join("assets", "pixel_laser_yellow.png"))
 
-# ship class for game
+# dict with colors
+colors = {
+            "red" : (RED_SPACE_SHIP, R_LASER),
+            "blue" : (BLUE_SPACE_SHIP, B_LASER),
+            "green" : (GREEN_SPACE_SHIP, G_LASER)
+}
 
+# ship class for game
 class Ship():
     def __init__(self, x, y, health=100):
         self.x = x
@@ -46,9 +52,12 @@ class Player(Ship):
         self.ship_img = YELLOW_SPACE_SHIP
         self.laser_img = Y_LASER
 
-#class Enemy(Ship):
- #   def __init__(self, x, y, health=100, color):
-  #      super().__init__(x, y, health)
+class Enemy(Ship):
+    def __init__(self, x, y, health=100, color="red"):
+        super().__init__(x, y, health)
+        self.color = color
+        self.ship_img, self.laser_img = colors.get(color)
+
         
 
 
@@ -61,12 +70,14 @@ def main():
     clock = pygame.time.Clock()
     main_font = pygame.font.SysFont("comicsans", 35)
     ship = Player(300, 650)
+    enemy = Enemy(100, 200)
     velocity = 15
     
 
     def redraw_window():
         WIN.blit(BG, (0,0))
         ship.draw(WIN)
+        enemy.draw(WIN)
         lives_label = main_font.render(f"Lives Remaining : {lives}", 1, (255,255,255))
         level_label = main_font.render(f"Level {level}", 1, (255,255,255))
         WIN.blit(lives_label, (10,10))
