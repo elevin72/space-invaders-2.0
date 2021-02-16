@@ -53,10 +53,10 @@ class Player(Ship):
         self.laser_img = Y_LASER
 
 class Enemy(Ship):
-    def __init__(self, x, y, health=100, color="red"):
+    def __init__(self, x, y, health=100, color=["red", "green", "blue"]):
         super().__init__(x, y, health)
-        self.color = color
-        self.ship_img, self.laser_img = colors.get(color)
+        self.color = color[random.randrange(0,3)]
+        self.ship_img, self.laser_img = colors.get(self.color)
 
         
 
@@ -71,6 +71,7 @@ def main():
     main_font = pygame.font.SysFont("comicsans", 35)
     ship = Player(300, 650)
     enemy = Enemy(100, 200)
+    enemy2 = Enemy(200, 200)
     velocity = 15
     
 
@@ -78,6 +79,7 @@ def main():
         WIN.blit(BG, (0,0))
         ship.draw(WIN)
         enemy.draw(WIN)
+        enemy2.draw(WIN)
         lives_label = main_font.render(f"Lives Remaining : {lives}", 1, (255,255,255))
         level_label = main_font.render(f"Level {level}", 1, (255,255,255))
         WIN.blit(lives_label, (10,10))
