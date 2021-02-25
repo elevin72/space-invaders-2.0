@@ -92,7 +92,7 @@ def main():
     enemies = []   
     spawn_count = 5
     velocity = 10  
-    enemy_velocity = 1  
+    enemy_velocity = 2  
 
     def redraw_window():
         WIN.blit(BG, (0,0))
@@ -113,7 +113,7 @@ def main():
         if len(enemies) == 0:
             level += 1            
             for i in range(level*spawn_count):
-                enemy = Enemy(random.randrange(50, WIDTH-100), random.randrange(-1000, -100), random.choice(["red", "blue", "green"]))
+                enemy = Enemy(random.randrange(50, WIDTH-100), random.randrange(-1000*level, -100*(level/2)), random.choice(["red", "blue", "green"]))
                 enemies.append(enemy)
 
         for event in pygame.event.get():
