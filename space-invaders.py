@@ -2,8 +2,6 @@ import pygame
 import os
 import random
 import time
-from pygame import event
-
 
 # font intializer
 pygame.font.init()
@@ -137,6 +135,8 @@ def main():
 
         for enemy in enemies:
             enemy.move(enemy_velocity)
+            if enemy.y > HEIGHT+100:
+                enemies.remove(enemy)
 
         redraw_window()
 
