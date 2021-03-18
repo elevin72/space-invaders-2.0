@@ -44,6 +44,17 @@ class Ship():
 
     def get_height(self):
         return self.ship_img.get_height()
+    
+    
+class Laser:
+    def __init__(self, x, y, img):
+        self.x = x
+        self.y = y
+        self.velocity = 20
+        self.img = img
+        
+    def draw(self, window):
+        window.blit(self.img, (self.x, self.y))
 
 class Player(Ship):
     def __init__(self, x, y, health=100):
@@ -51,15 +62,17 @@ class Player(Ship):
         self.ship_img = YELLOW_SPACE_ship
         self.laser_img = Y_LASER
         self.mask = pygame.mask.from_surface(self.ship_img)
-        self.max_health = health
+        self.max_health = health        
 
     def fire(self, window):
-        vel = 20
-        rel_x = self.x + (.5*self.get_width())
-        rel_y = self.y 
-        while rel_y >= 0:
-            window.blit(self.laser_img, (rel_x, rel_y))
-            rel_y += vel           
+        laser = Laser(self.x, self.y, self.laser_img)        
+        self.lasers.append(laser) 
+                      
+            
+    def move_lasers(self):
+        for laser in self.lasers:                             
+            laser.y -= laser.velocity
+                      
 
         #draw laser moving from ships position upwards (y value gets smaller)
         #include laser velocity
@@ -98,7 +111,9 @@ def main():
         WIN.blit(BG, (0,0))
         for enemy in enemies:
             enemy.draw(WIN)
-        player.draw(WIN)        
+        player.draw(WIN) 
+        for laser in player.lasers:
+            laser.draw(WIN)       
         lives_label = main_font.render(f"Lives Remaining : {lives}", 1, (255,255,255))
         level_label = main_font.render(f"Level {level}", 1, (255,255,255))
         WIN.blit(lives_label, (10,10))
@@ -132,6 +147,11 @@ def main():
             player.y += velocity
         if keys[pygame.K_SPACE]:
             player.fire(WIN)
+        
+        player.move_lasers()
+        for laser in player.lasers:
+            if laser.y < -15:
+                player.lasers.remove(laser)
 
         for enemy in enemies:
             enemy.move(enemy_velocity)
