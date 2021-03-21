@@ -16,3 +16,4 @@ class Enemy(Ship):
 
     def move(self, vel):
         self.y += vel
+            
