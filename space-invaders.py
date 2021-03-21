@@ -7,6 +7,7 @@ from Enemy import Enemy
 
 # font intializer
 pygame.font.init()
+
 # Window data
 WIDTH, HEIGHT = (750, 750)
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -14,8 +15,6 @@ pygame.display.set_caption("Space Invaders 2.0")
 
 # background
 BG = pygame.transform.scale(pygame.image.load(os.path.join("assets", "background-black.png")), (WIDTH, HEIGHT))  
-
-
 
 # main procedure
 def main():
@@ -74,8 +73,19 @@ def main():
             player.y += velocity
         if keys[pygame.K_SPACE]:
             player.fire(WIN)
+            
+        for enemy in enemies:
+            if random.randrange(1, 250) == level and enemy.y > 0:
+                enemy.lasers.append(Laser(enemy.x-(enemy.get_width()*.25), enemy.y, enemy.laser_img, 5))
+            enemy.move_lasers()
+            for laser in enemy.lasers:
+                if laser.y > HEIGHT:
+                    enemy.lasers.remove(laser)
+        
+                    
         
         player.move_lasers()
+        
         for laser in player.lasers:
             if laser.y < -15:
                 player.lasers.remove(laser)
