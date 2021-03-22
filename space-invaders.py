@@ -23,9 +23,27 @@ def collide(obj1, obj2):
     # returns true when there is a collision between the two objects
     return obj1.mask.overlap(obj2.mask, (int(offset_x), int(offset_y))) != None
 
+def game_over_screen():
+    game_over_font = pygame.font.SysFont("comicsans", 50)
+    while True:
+        WIN.blit(BG, (0, 0))        
+        game_over_label1 = game_over_font.render("OH NO! You lost!", 1, (255,255,255))
+        game_over_label2 = game_over_font.render("Click the MOUSE to play again.", 1, (255,255,255))
+        WIN.blit(game_over_label1, (WIDTH/2 - game_over_label1.get_width()/2, HEIGHT/2 - 75))
+        WIN.blit(game_over_label2, (WIDTH/2 - game_over_label2.get_width()/2, HEIGHT/2 + game_over_label1.get_height() + 10 - 75))
+        pygame.display.update()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                quit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                main()
+            
+                
+
 # main procedure
 def main():
     run = True
+    game_over = False
     FPS = 60
     level = 0
     lives = 3
@@ -69,7 +87,7 @@ def main():
                 run = False
         
         if player.health == 0:
-            break
+            game_over = True
             
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT] and player.x + velocity > 0: # left key press
@@ -104,7 +122,10 @@ def main():
                 if collide(laser, player):
                     player.health -= 20
                     enemy.lasers.remove(laser)                    
-        
+
+            if game_over:
+                game_over_screen()
+                
         player.move_lasers()
         
         for laser in player.lasers:
@@ -119,5 +140,22 @@ def main():
       
 
         redraw_window()
-
-main()
+def main_menu():
+    menu_font = pygame.font.SysFont("comicsans", 60)
+    welcome_label = menu_font.render("Welcome to SPACE INVADERS 2.0!", 1, (142, 123, 225))
+    play_label = menu_font.render("Click the MOUSE to play!", 1, (142, 123, 225))
+    run = True
+    while run:
+        WIN.blit(BG, (0,0))  
+        WIN.blit(welcome_label, ((WIDTH/2-(welcome_label.get_width()/2)), HEIGHT/2 - 100))    
+        WIN.blit(play_label, (WIDTH/2 - play_label.get_width()/2, HEIGHT/2 + welcome_label.get_height()+10 - 100))     
+        pygame.display.update()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                main()
+                run = False
+        
+           
+main_menu()
