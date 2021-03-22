@@ -16,6 +16,13 @@ pygame.display.set_caption("Space Invaders 2.0")
 # background
 BG = pygame.transform.scale(pygame.image.load(os.path.join("assets", "background-black.png")), (WIDTH, HEIGHT))  
 
+# collision detection for lasers
+def collide(obj1, obj2):
+    offset_x = obj2.x - obj1.x
+    offset_y = obj2.y - obj1.y
+    # returns true when there is a collision between the two objects
+    return obj1.mask.overlap(obj2.mask, (int(offset_x), int(offset_y))) != None
+
 # main procedure
 def main():
     run = True
@@ -24,7 +31,7 @@ def main():
     lives = 3
     clock = pygame.time.Clock()
     main_font = pygame.font.SysFont("comicsans", 35)
-    player = Player(300, 650)
+    player = Player(300, 650, health=100)
     enemies = []   
     spawn_count = 5
     velocity = 10  
@@ -61,7 +68,9 @@ def main():
             if event.type is pygame.QUIT:
                 run = False
         
-
+        if player.health == 0:
+            break
+            
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT] and player.x + velocity > 0: # left key press
             player.x -= velocity
@@ -75,25 +84,38 @@ def main():
             player.fire(WIN)
             
         for enemy in enemies:
+            # probability of an enemy shooting at a given moment is 1 in 250
             if random.randrange(1, 250) == level and enemy.y > 0:
                 enemy.lasers.append(Laser(enemy.x-(enemy.get_width()*.25), enemy.y, enemy.laser_img, 5))
+            
+            if collide(enemy, player):
+                player.health -= 50
+                enemies.remove(enemy)
+                
+            enemy.move(enemy_velocity)
+            if enemy.y > HEIGHT+100:
+                enemies.remove(enemy)    
+            
             enemy.move_lasers()
+            
             for laser in enemy.lasers:
                 if laser.y > HEIGHT:
                     enemy.lasers.remove(laser)
-        
-                    
+                if collide(laser, player):
+                    player.health -= 20
+                    enemy.lasers.remove(laser)                    
         
         player.move_lasers()
         
         for laser in player.lasers:
             if laser.y < -15:
                 player.lasers.remove(laser)
-
-        for enemy in enemies:
-            enemy.move(enemy_velocity)
-            if enemy.y > HEIGHT+100:
-                enemies.remove(enemy)
+                
+            for enemy in enemies:
+                if collide(laser, enemy):
+                    enemies.remove(enemy)
+                    player.lasers.remove(laser)
+      
 
         redraw_window()
 
