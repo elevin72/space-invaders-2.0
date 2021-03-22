@@ -86,8 +86,12 @@ def main():
             if event.type is pygame.QUIT:
                 run = False
         
-        if player.health <= 0:
-            game_over = True
+        if player.health <= 0:            
+            lives -= 1
+            player.health = 100  
+            if lives == 0:
+                game_over = True              
+            
             
         keys = pygame.key.get_pressed()
         if keys[pygame.K_LEFT] and player.x + velocity > 0: # left key press
@@ -111,8 +115,11 @@ def main():
                 enemies.remove(enemy)
                 
             enemy.move(enemy_velocity)
-            if enemy.y > HEIGHT+100:
-                enemies.remove(enemy)    
+            if enemy.y > HEIGHT+50:
+                enemies.remove(enemy)
+                lives -= 1   
+                if lives == 0:
+                    game_over = True 
             
             enemy.move_lasers()
             
