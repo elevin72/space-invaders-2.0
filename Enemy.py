@@ -16,4 +16,6 @@ class Enemy(Ship):
 
     def move(self, vel):
         self.y += vel
-            
+        
+    def fire(self, window):
+        self.lasers.append(Laser(self.x-4, self.y, self.laser_img, 10))    

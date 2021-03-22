@@ -114,7 +114,8 @@ def main():
             for enemy in enemies:
                 if collide(laser, enemy):
                     enemies.remove(enemy)
-                    player.lasers.remove(laser)
+                    if laser in player.lasers:
+                        player.lasers.remove(laser)
       
 
         redraw_window()

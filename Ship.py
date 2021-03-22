@@ -15,8 +15,7 @@ class Ship():
         self.ship_img = None
         self.laser_img = None
         self.lasers = []
-        self.cool_down = 0
-    
+            
     def draw(self, window):
         window.blit(self.ship_img, (self.x, self.y))
 
