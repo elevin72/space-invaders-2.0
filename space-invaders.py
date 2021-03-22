@@ -86,7 +86,7 @@ def main():
             if event.type is pygame.QUIT:
                 run = False
         
-        if player.health == 0:
+        if player.health <= 0:
             game_over = True
             
         keys = pygame.key.get_pressed()
