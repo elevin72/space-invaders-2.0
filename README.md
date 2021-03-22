@@ -1,2 +1,4 @@
 # space-invaders-2.0
-Created a mini version of space invaders
+Creating a mini version of space invaders
+
+If you have something to add please make an issue and a pull request.
