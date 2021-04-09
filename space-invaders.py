@@ -63,8 +63,8 @@ def main():
         blit_bg()
         for enemy in enemies:
             enemy.draw(WIN)
-            for laser in enemy_lasers:
-                laser.draw(WIN);      
+        for laser in enemy_lasers:
+            laser.draw(WIN);      
         player.draw(WIN) 
         for laser in player.lasers:
             laser.draw(WIN) 
@@ -111,7 +111,7 @@ def main():
         for enemy in enemies:
             # probability of an enemy shooting at a given moment is 1 in 250
             if random.randrange(1, 250) == level and enemy.y > 0:
-                enemy_lasers.append(Laser(enemy.x-(enemy.get_width()*.25), enemy.y, enemy.laser_img, 5))
+                enemy_lasers.append(Laser(enemy.x-(enemy.get_width()*.25), enemy.y, enemy.laser_img, 5 * ((level+5)/5) ))
             
             if collide(enemy, player):
                 player.health -= 50
@@ -123,9 +123,6 @@ def main():
                 lives -= 1   
                 if lives == 0:
                     game_over = True 
-            
-            if game_over:
-                game_over_screen()
                 
         for laser in enemy_lasers:
             laser.y += laser.velocity
@@ -138,14 +135,18 @@ def main():
         player.move_lasers()
         for laser in player.lasers:
             if laser.y < -15:
+                # TODO: Sniper Mode. Every laser that misses a ship spawns more ships.
                 player.lasers.remove(laser)
-                
             for enemy in enemies:
                 if collide(laser, enemy):
                     enemies.remove(enemy)
-                    if laser in player.lasers:
-                        player.lasers.remove(laser)
+                    player.lasers.remove(laser)
+                    # if laser in player.lasers:
+
       
+        if game_over:
+            game_over_screen()
+
         redraw_window()
 
 def main_menu():

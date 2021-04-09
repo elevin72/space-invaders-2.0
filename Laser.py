@@ -17,5 +17,4 @@ class Laser:
     def draw(self, window):
         window.blit(self.img, (self.x, self.y))
 
-
         
