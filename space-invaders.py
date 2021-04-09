@@ -13,7 +13,7 @@ WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Space Invaders 2.0")
 
 # background
-BG = pygame.transform.scale(pygame.image.load(os.path.join("assets", "background-black.png")), (WIDTH, HEIGHT))  
+BG = pygame.transform.scale(pygame.image.load(os.path.join("assets", "background-black.png")).convert(), (WIDTH, HEIGHT)) 
 
 # collision detection for lasers
 def collide(obj1, obj2):
@@ -140,8 +140,8 @@ def main():
             for enemy in enemies:
                 if collide(laser, enemy):
                     enemies.remove(enemy)
-                    player.lasers.remove(laser)
-                    # if laser in player.lasers:
+                    if laser in player.lasers:
+                        player.lasers.remove(laser)
 
       
         if game_over:
