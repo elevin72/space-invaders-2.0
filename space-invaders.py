@@ -40,12 +40,14 @@ def game_over_screen():
                 main()
             
                 
+def blit_bg():
+    WIN.blit(BG, (0,0))
 
 # main procedure
 def main():
     run = True
     game_over = False
-    FPS = 60
+    FPS = 40
     level = 0
     lives = 3
     clock = pygame.time.Clock()
@@ -58,7 +60,7 @@ def main():
     enemy_velocity = 2  
 
     def redraw_window():
-        WIN.blit(BG, (0,0))
+        blit_bg()
         for enemy in enemies:
             enemy.draw(WIN)
             for laser in enemy_lasers:
@@ -109,7 +111,7 @@ def main():
         for enemy in enemies:
             # probability of an enemy shooting at a given moment is 1 in 250
             if random.randrange(1, 250) == level and enemy.y > 0:
-                enemy_lasers.append(Laser(enemy.x-(enemy.get_width()*.25), enemy.y, enemy.laser_img, .5))
+                enemy_lasers.append(Laser(enemy.x-(enemy.get_width()*.25), enemy.y, enemy.laser_img, 5))
             
             if collide(enemy, player):
                 player.health -= 50
@@ -122,20 +124,17 @@ def main():
                 if lives == 0:
                     game_over = True 
             
-            for laser in enemy_lasers:
-                laser.y += laser.velocity
-            
-            for laser in enemy_lasers:
-                if laser.y > HEIGHT:
-                    enemy_lasers.remove(laser)
-
-                if collide(laser, player):
-                    player.health -= 20
-                    enemy_lasers.remove(laser)                    
-
             if game_over:
                 game_over_screen()
                 
+        for laser in enemy_lasers:
+            laser.y += laser.velocity
+            if laser.y > HEIGHT:
+                enemy_lasers.remove(laser)
+            if collide(laser, player):
+                player.health -= 20
+                enemy_lasers.remove(laser)                    
+
         player.move_lasers()
         for laser in player.lasers:
             if laser.y < -15:
