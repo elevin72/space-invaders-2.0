@@ -119,7 +119,8 @@ def main():
         if keys[pygame.K_DOWN] and player.y + velocity + 95 < HEIGHT: # down key press
             player.y += velocity
         if keys[pygame.K_SPACE]:
-            player.fire()
+            if player.can_fire():
+                player.fire()
             
         for enemy in enemies:
             # probability of an enemy shooting at a given moment is 1 in 250
