@@ -34,8 +34,8 @@ colors = {
         "yellow" : (YELLOW_SPACE_ship, Y_LASER)
         }
 
-# collision detection for lasers
 def collide(obj1, obj2):
+    """Collision detection for lasers"""
     offset_x = obj2.x - obj1.x
     offset_y = obj2.y - obj1.y
     # returns true when there is a collision between the two objects
@@ -56,11 +56,12 @@ def game_over_screen():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 main()
             
-# main procedure
+
 def main():
+    """Main procedure"""
     run = True
     game_over = False
-    FPS = 40
+    FPS = 60
     level = 0
     lives = 3
     clock = pygame.time.Clock()
@@ -178,4 +179,5 @@ def main_menu():
                 main()
                 run = False
 
-main_menu()
+if __name__ == "__main__":
+    main_menu()
