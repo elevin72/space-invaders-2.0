@@ -1,5 +1,5 @@
 import random
-import time
+import math
 from Ship import *
 from Laser import *
 from Player import Player
@@ -14,7 +14,25 @@ WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Space Invaders 2.0")
 
 # background
-BG = pygame.transform.scale(pygame.image.load(os.path.join("assets", "background-black.png")), (WIDTH, HEIGHT))  
+BG = pygame.transform.scale(pygame.image.load(os.path.join("assets", "background-black.png")).convert(), (WIDTH, HEIGHT)) 
+
+RED_SPACE_ship = pygame.transform.rotate(pygame.image.load(os.path.join("assets", "pixel_ship_red_small.png")).convert_alpha(), 180)
+BLUE_SPACE_ship = pygame.transform.rotate(pygame.image.load(os.path.join("assets", "pixel_ship_blue_small.png")).convert_alpha(), 180)
+GREEN_SPACE_ship = pygame.transform.rotate(pygame.image.load(os.path.join("assets", "pixel_ship_green_small.png")).convert_alpha(), 180)
+YELLOW_SPACE_ship = pygame.image.load(os.path.join("assets", "pixel_ship_yellow.png")).convert_alpha()
+
+R_LASER = pygame.image.load(os.path.join("assets", "pixel_laser_red.png")).convert_alpha()
+B_LASER = pygame.image.load(os.path.join("assets", "pixel_laser_blue.png")).convert_alpha()
+G_LASER = pygame.image.load(os.path.join("assets", "pixel_laser_green.png")).convert_alpha()
+Y_LASER = pygame.image.load(os.path.join("assets", "pixel_laser_yellow.png")).convert_alpha()
+
+# color dictionary
+colors = {
+        "red" : (RED_SPACE_ship, R_LASER),
+        "blue" : (BLUE_SPACE_ship, B_LASER),
+        "green" : (GREEN_SPACE_ship, G_LASER),
+        "yellow" : (YELLOW_SPACE_ship, Y_LASER)
+        }
 
 # collision detection for lasers
 def collide(obj1, obj2):
@@ -38,19 +56,18 @@ def game_over_screen():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 main()
             
-                
-
 # main procedure
 def main():
     run = True
     game_over = False
-    FPS = 60
+    FPS = 40
     level = 0
     lives = 3
     clock = pygame.time.Clock()
     main_font = pygame.font.SysFont("comicsans", 35)
-    player = Player(300, 650, health=100)
+    player = Player(300, 650, colors["yellow"], health=100)
     enemies = []   
+    enemy_lasers = []
     spawn_count = 5
     velocity = 10  
     enemy_velocity = 2+(.25*level)  
@@ -59,12 +76,11 @@ def main():
         WIN.blit(BG, (0,0))
         for enemy in enemies:
             enemy.draw(WIN)
+        for laser in enemy_lasers:
+            laser.draw(WIN);      
         player.draw(WIN) 
         for laser in player.lasers:
             laser.draw(WIN) 
-        for enemy in enemies:
-            for laser in enemy.lasers:
-                laser.draw(WIN);      
         lives_label = main_font.render(f"Lives Remaining : {lives}", 1, (255,255,255))
         level_label = main_font.render(f"Level {level}", 1, (255,255,255))
         WIN.blit(lives_label, (10,10))
@@ -79,7 +95,7 @@ def main():
         if len(enemies) == 0:
             level += 1            
             for i in range(level*spawn_count):
-                enemy = Enemy(random.randrange(50, WIDTH-100), random.randrange(-1000*level, -100*(level/2)), random.choice(["red", "blue", "green"]))
+                enemy = Enemy(random.randrange(50, WIDTH-100), random.randrange(-1000*level, math.floor(-100*(level/2))), colors[random.choice(["red", "blue", "green"])])
                 enemies.append(enemy)
 
         for event in pygame.event.get():
@@ -103,13 +119,12 @@ def main():
         if keys[pygame.K_DOWN] and player.y + velocity + 95 < HEIGHT: # down key press
             player.y += velocity
         if keys[pygame.K_SPACE]:
-            player.fire(WIN)
+            if player.can_fire():
+                player.fire()
             
         for enemy in enemies:
-            # probability of an enemy shooting at a given moment is dependent on the level number
-            if random.randrange(1, int(250/level)) == level and enemy.y > 0:
-                enemy.lasers.append(Laser(enemy.x-(enemy.get_width()*.25), enemy.y, enemy.laser_img, 5+(level*.25)))
-            
+            if random.randrange(1, 250) == level and enemy.y > 0:
+                enemy_lasers.append(Laser(enemy.x-(enemy.get_width()*.25), enemy.y, enemy.laser_img, 5 * ((level+5)/5) ))
             if collide(enemy, player):
                 player.health -= 50
                 enemies.remove(enemy)
@@ -120,33 +135,32 @@ def main():
                 lives -= 1   
                 if lives == 0:
                     game_over = True 
-            
-            enemy.move_lasers()
-            
-            for laser in enemy.lasers:
-                if laser.y > HEIGHT:
-                    enemy.lasers.remove(laser)
-                if collide(laser, player):
-                    player.health -= 20
-                    enemy.lasers.remove(laser)                    
-
-            if game_over:
-                game_over_screen()
                 
+        for laser in enemy_lasers:
+            laser.y += laser.velocity
+            if laser.y > HEIGHT:
+                enemy_lasers.remove(laser)
+            if collide(laser, player):
+                player.health -= 20
+                enemy_lasers.remove(laser)                    
+
         player.move_lasers()
-        
         for laser in player.lasers:
             if laser.y < -15:
+                # TODO: Sniper Mode. Every laser that misses a ship spawns more ships.
                 player.lasers.remove(laser)
-                
             for enemy in enemies:
                 if collide(laser, enemy):
                     enemies.remove(enemy)
                     if laser in player.lasers:
                         player.lasers.remove(laser)
+
       
+        if game_over:
+            game_over_screen()
 
         redraw_window()
+
 def main_menu():
     menu_font = pygame.font.SysFont("comicsans", 60)
     welcome_label = menu_font.render("Welcome to SPACE INVADERS 2.0!", 1, (142, 123, 225))
@@ -163,6 +177,5 @@ def main_menu():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 main()
                 run = False
-        
-           
+
 main_menu()
