@@ -1,4 +1,5 @@
 import random
+import math
 from Ship import *
 from Laser import *
 from Player import Player
@@ -15,14 +16,30 @@ pygame.display.set_caption("Space Invaders 2.0")
 # background
 BG = pygame.transform.scale(pygame.image.load(os.path.join("assets", "background-black.png")).convert(), (WIDTH, HEIGHT)) 
 
+RED_SPACE_ship = pygame.transform.rotate(pygame.image.load(os.path.join("assets", "pixel_ship_red_small.png")).convert_alpha(), 180)
+BLUE_SPACE_ship = pygame.transform.rotate(pygame.image.load(os.path.join("assets", "pixel_ship_blue_small.png")).convert_alpha(), 180)
+GREEN_SPACE_ship = pygame.transform.rotate(pygame.image.load(os.path.join("assets", "pixel_ship_green_small.png")).convert_alpha(), 180)
+YELLOW_SPACE_ship = pygame.image.load(os.path.join("assets", "pixel_ship_yellow.png")).convert_alpha()
+
+R_LASER = pygame.image.load(os.path.join("assets", "pixel_laser_red.png")).convert_alpha()
+B_LASER = pygame.image.load(os.path.join("assets", "pixel_laser_blue.png")).convert_alpha()
+G_LASER = pygame.image.load(os.path.join("assets", "pixel_laser_green.png")).convert_alpha()
+Y_LASER = pygame.image.load(os.path.join("assets", "pixel_laser_yellow.png")).convert_alpha()
+
+# color dictionary
+colors = {
+        "red" : (RED_SPACE_ship, R_LASER),
+        "blue" : (BLUE_SPACE_ship, B_LASER),
+        "green" : (GREEN_SPACE_ship, G_LASER),
+        "yellow" : (YELLOW_SPACE_ship, Y_LASER)
+        }
+
 # collision detection for lasers
 def collide(obj1, obj2):
     offset_x = obj2.x - obj1.x
     offset_y = obj2.y - obj1.y
     # returns true when there is a collision between the two objects
     return obj1.mask.overlap(obj2.mask, (int(offset_x), int(offset_y))) != None
-
-
 
 def game_over_screen():
     game_over_font = pygame.font.SysFont("comicsans", 50)
@@ -39,10 +56,6 @@ def game_over_screen():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 main()
             
-                
-def blit_bg():
-    WIN.blit(BG, (0,0))
-
 # main procedure
 def main():
     run = True
@@ -52,7 +65,7 @@ def main():
     lives = 3
     clock = pygame.time.Clock()
     main_font = pygame.font.SysFont("comicsans", 35)
-    player = Player(300, 650, health=100)
+    player = Player(300, 650, colors["yellow"], health=100)
     enemies = []   
     enemy_lasers = []
     spawn_count = 5
@@ -60,7 +73,7 @@ def main():
     enemy_velocity = 2  
 
     def redraw_window():
-        blit_bg()
+        WIN.blit(BG, (0,0))
         for enemy in enemies:
             enemy.draw(WIN)
         for laser in enemy_lasers:
@@ -82,7 +95,7 @@ def main():
         if len(enemies) == 0:
             level += 1            
             for i in range(level*spawn_count):
-                enemy = Enemy(random.randrange(50, WIDTH-100), random.randrange(-1000*level, -100*(level/2)), random.choice(["red", "blue", "green"]))
+                enemy = Enemy(random.randrange(50, WIDTH-100), random.randrange(-1000*level, math.floor(-100*(level/2))), colors[random.choice(["red", "blue", "green"])])
                 enemies.append(enemy)
 
         for event in pygame.event.get():
@@ -106,7 +119,8 @@ def main():
         if keys[pygame.K_DOWN] and player.y + velocity + 95 < HEIGHT: # down key press
             player.y += velocity
         if keys[pygame.K_SPACE]:
-            player.fire()
+            if player.can_fire():
+                player.fire()
             
         for enemy in enemies:
             # probability of an enemy shooting at a given moment is 1 in 250
