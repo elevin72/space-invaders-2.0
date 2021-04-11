@@ -53,7 +53,7 @@ def main():
     enemies = []   
     spawn_count = 5
     velocity = 10  
-    enemy_velocity = 2  
+    enemy_velocity = 2+(.25*level)  
 
     def redraw_window():
         WIN.blit(BG, (0,0))
@@ -106,9 +106,9 @@ def main():
             player.fire(WIN)
             
         for enemy in enemies:
-            # probability of an enemy shooting at a given moment is 1 in 250
-            if random.randrange(1, 250) == level and enemy.y > 0:
-                enemy.lasers.append(Laser(enemy.x-(enemy.get_width()*.25), enemy.y, enemy.laser_img, 5))
+            # probability of an enemy shooting at a given moment is dependent on the level number
+            if random.randrange(1, int(250/level)) == level and enemy.y > 0:
+                enemy.lasers.append(Laser(enemy.x-(enemy.get_width()*.25), enemy.y, enemy.laser_img, 5+(level*.25)))
             
             if collide(enemy, player):
                 player.health -= 50
