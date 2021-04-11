@@ -9,7 +9,11 @@ class Player(Ship):
         self.mask = pygame.mask.from_surface(self.ship_img)
         self.max_health = health   
         self.cool_down = 0     
+        self.lasers = []
 
     def move_lasers(self):
         for laser in self.lasers:
             laser.y -= laser.velocity
+
+    def fire(self):
+        self.lasers.append(Laser(self.x, self.y, self.laser_img, 10))

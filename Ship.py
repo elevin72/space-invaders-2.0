@@ -24,10 +24,4 @@ class Ship():
 
     def get_height(self):
         return self.ship_img.get_height()
-    
-    def fire(self, window):
-        self.lasers.append(Laser(self.x, self.y, self.laser_img, 10))
         
-    def move_lasers(self):
-        for laser in self.lasers:
-            laser.y += laser.velocity
