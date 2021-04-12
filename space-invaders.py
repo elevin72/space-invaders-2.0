@@ -115,13 +115,15 @@ def main():
                         random.randrange(-1000*level, math.floor(-100*(level/2))),
                         colors[random.choice(["red", "blue", "green"])])
                 enemies.append(enemy)
-            for i in range(random.randint(5,10)):
+        # while there are still enemies continue generating powerups
+        else:
+            if random.randint(1,500) == 1:
                 powerup = Powerup(
                         random.randrange(50, WIDTH-100),
-                        # random.randrange(-1000*level, math.floor(-100*(level/2))),
-                        random.randrange(-100, 0),
+                        random.randrange(-1000*level, math.floor(-100*(level/2))),
                         powerup_kinds[random.choice(["heart", "x2", "bomb"])])
                 powerups.append(powerup)
+
 
         for event in pygame.event.get():
             if event.type is pygame.QUIT:
@@ -172,6 +174,9 @@ def main():
         for powerup in powerups:
             if collide(powerup, player):
                 player.handle_powerup(powerup)
+                powerups.remove(powerup)
+            if powerup.y > HEIGHT:
+                powerups.remove(powerup)
             powerup.move()
 
         player.move_lasers()
@@ -182,8 +187,7 @@ def main():
             for enemy in enemies:
                 if collide(laser, enemy):
                     enemies.remove(enemy)
-                    if laser in player.lasers:
-                        player.lasers.remove(laser)
+                    player.lasers.remove(laser)
 
       
         if game_over:

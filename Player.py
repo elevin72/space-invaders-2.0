@@ -11,7 +11,7 @@ class Player(Ship):
         self.lives = lives
         self.max_health = health   
         self.cool_down_timer = 0
-        self.x2_timer = 0
+        self.x2_timer = 10000000000
         self.lasers = []
 
     def move_lasers(self):
@@ -24,8 +24,8 @@ class Player(Ship):
     def fire(self):
         x2 = timer()
         if self.x2_timer - x2 < 5:
-            self.__fire(offset=-0.5)
-            self.__fire(offset=0.5)
+            self.__fire(offset=-8)
+            self.__fire(offset=8)
         else:
             self.__fire()
         self.cool_down_timer = timer()
