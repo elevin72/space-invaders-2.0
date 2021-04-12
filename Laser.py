@@ -1,5 +1,4 @@
 import pygame
-import os
 
 class Laser: 
     def __init__(self, x, y, img, velocity):

@@ -1,5 +1,7 @@
+from Powerup import Powerup
 import random
 import math
+import os
 from Ship import *
 from Laser import *
 from Player import Player
@@ -26,12 +28,22 @@ B_LASER = pygame.image.load(os.path.join("assets", "pixel_laser_blue.png")).conv
 G_LASER = pygame.image.load(os.path.join("assets", "pixel_laser_green.png")).convert_alpha()
 Y_LASER = pygame.image.load(os.path.join("assets", "pixel_laser_yellow.png")).convert_alpha()
 
+HEART_PU = pygame.image.load(os.path.join("assets", "heart.png")).convert_alpha()
+X2_PU = pygame.image.load(os.path.join("assets", "x2.png")).convert_alpha()
+BOMB_PU = pygame.image.load(os.path.join("assets", "bomb.png")).convert_alpha()
+
 # color dictionary
 colors = {
         "red" : (RED_SPACE_ship, R_LASER),
         "blue" : (BLUE_SPACE_ship, B_LASER),
         "green" : (GREEN_SPACE_ship, G_LASER),
         "yellow" : (YELLOW_SPACE_ship, Y_LASER)
+        }
+
+powerup_kinds = {
+        "heart" : ("heart", HEART_PU),
+        "x2" : ("x2", X2_PU),
+        "bomb" : ("bomb", BOMB_PU)
         }
 
 def collide(obj1, obj2):
@@ -63,12 +75,12 @@ def main():
     game_over = False
     FPS = 60
     level = 0
-    lives = 3
     clock = pygame.time.Clock()
     main_font = pygame.font.SysFont("comicsans", 35)
-    player = Player(300, 650, colors["yellow"], health=100)
+    player = Player(300, 650, colors["yellow"], lives=3, health=100)
     enemies = []   
     enemy_lasers = []
+    powerups = []
     spawn_count = 5
     velocity = 10  
     enemy_velocity = 2+(.25*level)  
@@ -79,10 +91,12 @@ def main():
             enemy.draw(WIN)
         for laser in enemy_lasers:
             laser.draw(WIN);      
+        for powerup in powerups:
+            powerup.draw(WIN)
         player.draw(WIN) 
         for laser in player.lasers:
             laser.draw(WIN) 
-        lives_label = main_font.render(f"Lives Remaining : {lives}", 1, (255,255,255))
+        lives_label = main_font.render(f"Lives Remaining : {player.lives}", 1, (255,255,255))
         level_label = main_font.render(f"Level {level}", 1, (255,255,255))
         WIN.blit(lives_label, (10,10))
         WIN.blit(level_label, (WIDTH - level_label.get_width()-10,10))        
@@ -96,17 +110,27 @@ def main():
         if len(enemies) == 0:
             level += 1            
             for i in range(level*spawn_count):
-                enemy = Enemy(random.randrange(50, WIDTH-100), random.randrange(-1000*level, math.floor(-100*(level/2))), colors[random.choice(["red", "blue", "green"])])
+                enemy = Enemy(
+                        random.randrange(50, WIDTH-100),
+                        random.randrange(-1000*level, math.floor(-100*(level/2))),
+                        colors[random.choice(["red", "blue", "green"])])
                 enemies.append(enemy)
+            for i in range(random.randint(5,10)):
+                powerup = Powerup(
+                        random.randrange(50, WIDTH-100),
+                        # random.randrange(-1000*level, math.floor(-100*(level/2))),
+                        random.randrange(-100, 0),
+                        powerup_kinds[random.choice(["heart", "x2", "bomb"])])
+                powerups.append(powerup)
 
         for event in pygame.event.get():
             if event.type is pygame.QUIT:
                 run = False
         
         if player.health <= 0:            
-            lives -= 1
+            player.lives -= 1
             player.health = 100  
-            if lives == 0:
+            if player.lives == 0:
                 game_over = True              
             
             
@@ -133,8 +157,8 @@ def main():
             enemy.move(enemy_velocity)
             if enemy.y > HEIGHT+50:
                 enemies.remove(enemy)
-                lives -= 1   
-                if lives == 0:
+                player.lives -= 1   
+                if player.lives == 0:
                     game_over = True 
                 
         for laser in enemy_lasers:
@@ -144,6 +168,11 @@ def main():
             if collide(laser, player):
                 player.health -= 20
                 enemy_lasers.remove(laser)                    
+
+        for powerup in powerups:
+            if collide(powerup, player):
+                player.handle_powerup(powerup)
+            powerup.move()
 
         player.move_lasers()
         for laser in player.lasers:
