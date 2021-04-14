@@ -1,22 +1,44 @@
-from Laser import *
+import time
+from GameObject import *
+from Player import *
 
-class Powerup(Laser):
+class Powerup(GameObject):
+
+    kinds = {
+        "heart" : pygame.image.load(os.path.join("assets", "heart.png")).convert_alpha(),
+        "x2" : pygame.image.load(os.path.join("assets", "x2.png")).convert_alpha(),
+        "bomb" : pygame.image.load(os.path.join("assets", "bomb.png")).convert_alpha(),
+        "explode" : pygame.transform.scale(pygame.image.load(os.path.join("assets", "explode.png")).convert_alpha(), (200,200))
+        }
+
+    # note that velocity changed postion in args list
     def __init__(self, x, y, kind, velocity=1):
-        self.x = x
-        self.y = y
-        self.velocity = velocity
-        if kind[0] in {"heart", "bomb", "x2"}:
-            self.kind = kind[0]
+        super().__init__(x, y, velocity)
+        if kind in self.kinds:
+            self.kind = kind
+            self.img = self.kinds[kind]
         else:
             exit()
             # throw something
-            # powerup type not supported
-        self.img = kind[1]
+            # powerup kind not supported
         self.mask = pygame.mask.from_surface(self.img)
 
-    # anti-pattern much??
-    def move(self):
-        self.y += self.velocity
+    ## some cool way of externally changing internal behavior of player/other objects
+    ## override some method of it for a short period of time, then change back?
+    @staticmethod
+    async def double_lasers(player: Player):
+        # No good, but something like this
+        class double_lasers_player(Player):
+            def fire(self):
+                self.__fire(offset=-8)
+                self.__fire(offset=8)
+        player_orig = player
+        player = double_lasers_player(player.x, player.y, player.velocity)
+        time.sleep(5)
+        player = player_orig
 
-    def draw(self, window):
-        window.blit(self.img, (self.x, self.y))
+    def explode(self, img):
+        self.velocity = 0
+        self.kind = "exploding"
+        self.img = img
+        self.mask = pygame.mask.from_surface(self.img)

@@ -2,56 +2,15 @@ from Powerup import Powerup
 import random
 import math
 import os
-from Ship import *
-from Laser import *
+from GameObject import *
+# from Ship import *
+# from Laser import *
 from Player import Player
 from Enemy import Enemy
+from Util import *
 
 # font intializer
 pygame.font.init()
-
-# Window data
-WIDTH, HEIGHT = (750, 750)
-WIN = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Space Invaders 2.0")
-
-# background
-BG = pygame.transform.scale(pygame.image.load(os.path.join("assets", "background-black.png")).convert(), (WIDTH, HEIGHT)) 
-
-RED_SPACE_ship = pygame.transform.rotate(pygame.image.load(os.path.join("assets", "pixel_ship_red_small.png")).convert_alpha(), 180)
-BLUE_SPACE_ship = pygame.transform.rotate(pygame.image.load(os.path.join("assets", "pixel_ship_blue_small.png")).convert_alpha(), 180)
-GREEN_SPACE_ship = pygame.transform.rotate(pygame.image.load(os.path.join("assets", "pixel_ship_green_small.png")).convert_alpha(), 180)
-YELLOW_SPACE_ship = pygame.image.load(os.path.join("assets", "pixel_ship_yellow.png")).convert_alpha()
-
-R_LASER = pygame.image.load(os.path.join("assets", "pixel_laser_red.png")).convert_alpha()
-B_LASER = pygame.image.load(os.path.join("assets", "pixel_laser_blue.png")).convert_alpha()
-G_LASER = pygame.image.load(os.path.join("assets", "pixel_laser_green.png")).convert_alpha()
-Y_LASER = pygame.image.load(os.path.join("assets", "pixel_laser_yellow.png")).convert_alpha()
-
-HEART_PU = pygame.image.load(os.path.join("assets", "heart.png")).convert_alpha()
-X2_PU = pygame.image.load(os.path.join("assets", "x2.png")).convert_alpha()
-BOMB_PU = pygame.image.load(os.path.join("assets", "bomb.png")).convert_alpha()
-
-# color dictionary
-colors = {
-        "red" : (RED_SPACE_ship, R_LASER),
-        "blue" : (BLUE_SPACE_ship, B_LASER),
-        "green" : (GREEN_SPACE_ship, G_LASER),
-        "yellow" : (YELLOW_SPACE_ship, Y_LASER)
-        }
-
-powerup_kinds = {
-        "heart" : ("heart", HEART_PU),
-        "x2" : ("x2", X2_PU),
-        "bomb" : ("bomb", BOMB_PU)
-        }
-
-def collide(obj1, obj2):
-    """Collision detection for lasers"""
-    offset_x = obj2.x - obj1.x
-    offset_y = obj2.y - obj1.y
-    # returns true when there is a collision between the two objects
-    return obj1.mask.overlap(obj2.mask, (int(offset_x), int(offset_y))) != None
 
 def game_over_screen():
     game_over_font = pygame.font.SysFont("comicsans", 50)
@@ -67,7 +26,6 @@ def game_over_screen():
                 quit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 main()
-            
 
 def main():
     """Main procedure"""
@@ -77,25 +35,24 @@ def main():
     level = 0
     clock = pygame.time.Clock()
     main_font = pygame.font.SysFont("comicsans", 35)
-    player = Player(300, 650, colors["yellow"], lives=3, health=100)
+    player = Player(300, 650, 10)
     enemies = []   
     enemy_lasers = []
     powerups = []
     spawn_count = 5
-    velocity = 10  
     enemy_velocity = 2+(.25*level)  
 
     def redraw_window():
         WIN.blit(BG, (0,0))
         for enemy in enemies:
-            enemy.draw(WIN)
+            enemy.draw()
         for laser in enemy_lasers:
-            laser.draw(WIN);      
+            laser.draw();      
         for powerup in powerups:
-            powerup.draw(WIN)
-        player.draw(WIN) 
+            powerup.draw()
+        player.draw() 
         for laser in player.lasers:
-            laser.draw(WIN) 
+            laser.draw() 
         lives_label = main_font.render(f"Lives Remaining : {player.lives}", 1, (255,255,255))
         level_label = main_font.render(f"Level {level}", 1, (255,255,255))
         WIN.blit(lives_label, (10,10))
@@ -113,15 +70,16 @@ def main():
                 enemy = Enemy(
                         random.randrange(50, WIDTH-100),
                         random.randrange(-1000*level, math.floor(-100*(level/2))),
-                        colors[random.choice(["red", "blue", "green"])])
+                        10, # Maybe increase velocity as level increase?
+                        random.choice(["red", "blue", "green"]))
                 enemies.append(enemy)
         # while there are still enemies continue generating powerups
         else:
             if random.randint(1,500) == 1:
                 powerup = Powerup(
                         random.randrange(50, WIDTH-100),
-                        random.randrange(-1000*level, math.floor(-100*(level/2))),
-                        powerup_kinds[random.choice(["heart", "x2", "bomb"])])
+                        random.randrange(-1000),
+                        random.choice(["heart", "x2", "bomb"]))
                 powerups.append(powerup)
 
 
@@ -187,8 +145,8 @@ def main():
             for enemy in enemies:
                 if collide(laser, enemy):
                     enemies.remove(enemy)
-                    player.lasers.remove(laser)
-
+                    if laser in player.lasers:
+                        player.lasers.remove(laser)
       
         if game_over:
             game_over_screen()
