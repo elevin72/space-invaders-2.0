@@ -1,12 +1,9 @@
 from GameObject import GameObject
 
 # Ship could be a useless class, and Enemy and Player could inherit directly from GameObject probably
-# ship and laser classes for game
 class Ship(GameObject):
     def __init__(self, x, y, velocity):
         super().__init__(x, y, velocity)  # wait im confused. pass image, but then how does mask work?
-        # self.health = health
-        # self.lasers = []
             
     def get_width(self):
         return self.img.get_width()

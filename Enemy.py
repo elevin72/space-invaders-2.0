@@ -4,7 +4,6 @@ from Ship import *
 from Laser import *
 
 class Enemy(Ship):
-    # lasers = []
     colors = {
             "red" : pygame.transform.rotate(pygame.image.load(os.path.join("assets", "pixel_ship_red_small.png")).convert_alpha(), 180),
             "blue" : pygame.transform.rotate(pygame.image.load(os.path.join("assets", "pixel_ship_blue_small.png")).convert_alpha(), 180),

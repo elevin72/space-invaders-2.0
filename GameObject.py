@@ -32,10 +32,6 @@ class GameObject:
     def update(self):
         self.move()
         self.draw()
-
-    # Every concrete object MUST implement do_collision() !!
-    def do_collision(self, game_object):
-        pass
             
 
 

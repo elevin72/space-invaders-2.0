@@ -6,9 +6,6 @@ from GameObject import *
 from Context import *
 
 class Laser(GameObject): 
-
-    # always import Game before this class so convert_alpha works properly()
-    # import it yourself?
     colors = {
         "red" : pygame.image.load(os.path.join("assets", "pixel_laser_red.png")).convert_alpha(),
         "blue" : pygame.image.load(os.path.join("assets", "pixel_laser_blue.png")).convert_alpha(),

@@ -47,7 +47,7 @@ def main():
         clock.tick(FPS)
 
         # Get player input
-        ctx.player.get_input()
+        # ctx.player.get_input()
         ctx.move_everyone()
 
         # Update level
