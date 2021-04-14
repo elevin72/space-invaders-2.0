@@ -1,5 +1,6 @@
 from GameObject import GameObject
 
+# Ship could be a useless class, and Enemy and Player could inherit directly from GameObject probably
 # ship and laser classes for game
 class Ship(GameObject):
     def __init__(self, x, y, velocity):

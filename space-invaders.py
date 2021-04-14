@@ -1,16 +1,13 @@
 from Powerup import Powerup
 import random
 import math
-import os
+from Context import *
 from GameObject import *
-# from Ship import *
-# from Laser import *
-from Player import Player
-from Enemy import Enemy
+from Ship import *
+from Laser import *
+from Player import *
+from Enemy import *
 from Util import *
-
-# font intializer
-pygame.font.init()
 
 def game_over_screen():
     game_over_font = pygame.font.SysFont("comicsans", 50)
@@ -29,125 +26,78 @@ def game_over_screen():
 
 def main():
     """Main procedure"""
+    # These 4 variables felt like they didn't belong in ctx. Not sure why
     run = True
     game_over = False
     FPS = 60
-    level = 0
     clock = pygame.time.Clock()
-    main_font = pygame.font.SysFont("comicsans", 35)
-    player = Player(300, 650, 10)
-    enemies = []   
-    enemy_lasers = []
-    powerups = []
-    spawn_count = 5
-    enemy_velocity = 2+(.25*level)  
+    ctx.player = Player(300, 650, 5)
 
     def redraw_window():
         WIN.blit(BG, (0,0))
-        for enemy in enemies:
-            enemy.draw()
-        for laser in enemy_lasers:
-            laser.draw();      
-        for powerup in powerups:
-            powerup.draw()
-        player.draw() 
-        for laser in player.lasers:
-            laser.draw() 
-        lives_label = main_font.render(f"Lives Remaining : {player.lives}", 1, (255,255,255))
-        level_label = main_font.render(f"Level {level}", 1, (255,255,255))
+        ctx.draw_everyone()
+        lives_label = ctx.main_font.render(f"Lives Remaining : {ctx.player.lives}, {ctx.player.health}%", 1, (255,255,255))
+        level_label = ctx.main_font.render(f"Level {ctx.level}", 1, (255,255,255))
         WIN.blit(lives_label, (10,10))
         WIN.blit(level_label, (WIDTH - level_label.get_width()-10,10))        
-
         pygame.display.update()       
 
 
     while run:        
         clock.tick(FPS)
 
-        if len(enemies) == 0:
-            level += 1            
-            for i in range(level*spawn_count):
+        # Get player input
+        ctx.player.get_input()
+        ctx.move_everyone()
+
+        # Update level
+        if len(ctx.enemies) == 0:
+            ctx.level += 1            
+            for i in range(ctx.level*ctx.spawn_count):
                 enemy = Enemy(
                         random.randrange(50, WIDTH-100),
-                        random.randrange(-1000*level, math.floor(-100*(level/2))),
+                        random.randrange(-1000*ctx.level, math.floor(-100*(ctx.level/2))),
                         10, # Maybe increase velocity as level increase?
                         random.choice(["red", "blue", "green"]))
-                enemies.append(enemy)
+                ctx.enemies.append(enemy)
         # while there are still enemies continue generating powerups
         else:
             if random.randint(1,500) == 1:
                 powerup = Powerup(
                         random.randrange(50, WIDTH-100),
-                        random.randrange(-1000),
+                        random.randrange(-200, -100),
+                        1,
                         random.choice(["heart", "x2", "bomb"]))
-                powerups.append(powerup)
+                ctx.powerups.append(powerup)
 
-
+        # check if quit game
         for event in pygame.event.get():
             if event.type is pygame.QUIT:
                 run = False
         
-        if player.health <= 0:            
-            player.lives -= 1
-            player.health = 100  
-            if player.lives == 0:
+        # check player health
+        if ctx.player.health <= 0:            
+            ctx.player.lives -= 1
+            ctx.player.health = 100  
+            if ctx.player.lives == 0:
                 game_over = True              
             
-            
-        keys = pygame.key.get_pressed()
-        if keys[pygame.K_LEFT] and player.x + velocity > 0: # left key press
-            player.x -= velocity
-        if keys[pygame.K_RIGHT] and player.x + velocity + player.get_width() - 20 < WIDTH: # right key press
-            player.x += velocity
-        if keys[pygame.K_UP] and player.y + velocity > 0: # up key press
-            player.y -= velocity
-        if keys[pygame.K_DOWN] and player.y + velocity + 95 < HEIGHT: # down key press
-            player.y += velocity
-        if keys[pygame.K_SPACE]:
-            if player.can_fire():
-                player.fire()
-            
-        for enemy in enemies:
-            if random.randrange(1, 250) == level and enemy.y > 0:
-                enemy_lasers.append(Laser(enemy.x-(enemy.get_width()*.25), enemy.y, enemy.laser_img, 5 * ((level+5)/5) ))
-            if collide(enemy, player):
-                player.health -= 50
-                enemies.remove(enemy)
-                
-            enemy.move(enemy_velocity)
-            if enemy.y > HEIGHT+50:
-                enemies.remove(enemy)
-                player.lives -= 1   
-                if player.lives == 0:
-                    game_over = True 
-                
-        for laser in enemy_lasers:
-            laser.y += laser.velocity
-            if laser.y > HEIGHT:
-                enemy_lasers.remove(laser)
-            if collide(laser, player):
-                player.health -= 20
-                enemy_lasers.remove(laser)                    
+        # enemies shoot
+        for enemy in ctx.enemies:
+            if random.randrange(1, 250) == ctx.level and enemy.y > 0:
+                ctx.lasers.append(Laser(
+                    enemy.x-(enemy.get_width()*.25),
+                    enemy.y,
+                    5 * ((ctx.level+5)/5),
+                    enemy.color))
 
-        for powerup in powerups:
-            if collide(powerup, player):
-                player.handle_powerup(powerup)
-                powerups.remove(powerup)
-            if powerup.y > HEIGHT:
-                powerups.remove(powerup)
-            powerup.move()
+        # calculate collisions
+        # inefficient, but cool :)
+        for obj1 in ctx.enemies + ctx.lasers + ctx.powerups + [ctx.player]:
+            for obj2 in ctx.enemies + ctx.lasers + ctx.powerups + [ctx.player]:
+                if collide(obj1, obj2) and obj1 is not obj2:
+                    do_collision(obj1, obj2)
 
-        player.move_lasers()
-        for laser in player.lasers:
-            if laser.y < -15:
-                # TODO: Sniper Mode. Every laser that misses a ship spawns more ships.
-                player.lasers.remove(laser)
-            for enemy in enemies:
-                if collide(laser, enemy):
-                    enemies.remove(enemy)
-                    if laser in player.lasers:
-                        player.lasers.remove(laser)
-      
         if game_over:
             game_over_screen()
 

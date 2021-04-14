@@ -1,6 +1,9 @@
 import pygame
 import os
+from Enemy import *
+from Player import *
 from GameObject import *
+from Context import *
 
 class Laser(GameObject): 
 
@@ -19,3 +22,11 @@ class Laser(GameObject):
         self.img = self.colors[color]
         self.mask = pygame.mask.from_surface(self.img)
         
+    def move(self):
+        # covers both enemy and player lasers
+        if self.y > HEIGHT or self.y < -15:
+            ctx.lasers.remove(self)
+        self.y += self.velocity
+
+    def draw(self):
+        WIN.blit(self.img, (self.x, self.y))

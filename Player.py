@@ -1,33 +1,41 @@
+from Enemy import *
+from Powerup import *
 from Ship import *
 from Laser import *
 from timeit import default_timer as timer
 
 class Player(Ship):
-
-    laser_img = pygame.image.load(os.path.join("assets", "pixel_ship_yellow.png")).convert_alpha()
-    img = pygame.image.load(os.path.join("assets", "pixel_ship_yellow.png")).convert_alpha()
-
     def __init__(self, x, y, velocity, lives=3, health=100):
         super().__init__(x, y, velocity)
-        self.mask = pygame.mask.from_surface(self.img)
         self.lives = lives
         self.health = health   
         self.cool_down_timer = 0
         self.x2_timer = 0
-        self.lasers = []
+        self.img = pygame.image.load(os.path.join("assets", "pixel_ship_yellow.png")).convert_alpha()
+        self.mask = pygame.mask.from_surface(self.img)
 
     def move(self):
-        self.y += self.velocity
-        for laser in self.lasers:
-            laser.y -= laser.velocity
+        self.get_input()
 
     def draw(self):
-        self.WIN.blit(self.img, (self.x, self.y))
-        for laser in self.lasers:
-            self.WIN.blit(self.laser_img, (laser.x, laser.y))
+        WIN.blit(self.img, (self.x, self.y))
+
+    def get_input(self):
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_LEFT] and self.x + self.velocity > 0: # left key press
+            self.x -= self.velocity
+        if keys[pygame.K_RIGHT] and self.x + self.velocity + self.get_width() - 20 < WIDTH: # right key press
+            self.x += self.velocity
+        if keys[pygame.K_UP] and self.y + self.velocity > 0: # up key press
+            self.y -= self.velocity
+        if keys[pygame.K_DOWN] and self.y + self.velocity + 95 < HEIGHT: # down key press
+            self.y += self.velocity
+        if keys[pygame.K_SPACE]:
+            if self.can_fire():
+                self.fire()
 
     def __fire(self, offset=0):
-        self.lasers.append(Laser(self.x + offset, self.y, self.laser_img, 10))
+        ctx.lasers.append(Laser(self.x + offset, self.y, -10, "yellow"))
 
     def fire(self):
         if timer() - self.x2_timer < 5:
@@ -50,4 +58,6 @@ class Player(Ship):
             self.x2_timer = timer()
         if powerup.kind == "bomb":
             self.lives -= 1
+
+
 
