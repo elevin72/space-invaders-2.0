@@ -1,5 +1,3 @@
-from Enemy import *
-from Powerup import *
 from Ship import *
 from Laser import *
 from timeit import default_timer as timer

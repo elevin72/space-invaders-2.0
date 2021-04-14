@@ -1,9 +1,6 @@
 import pygame
 import os
-from Enemy import *
-from Player import *
 from GameObject import *
-from Context import *
 
 class Laser(GameObject): 
     colors = {

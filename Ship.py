@@ -1,4 +1,4 @@
-from GameObject import GameObject
+from GameObject import *
 
 # Ship could be a useless class, and Enemy and Player could inherit directly from GameObject probably
 class Ship(GameObject):

@@ -1,6 +1,5 @@
 import random
 from GameObject import *
-from Player import *
 
 class Powerup(GameObject):
 

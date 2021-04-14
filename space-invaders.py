@@ -79,8 +79,8 @@ def main():
         if ctx.player.health <= 0:            
             ctx.player.lives -= 1
             ctx.player.health = 100  
-            if ctx.player.lives == 0:
-                game_over = True              
+        if ctx.player.lives  == 0:
+            game_over = True              
             
         # enemies shoot
         for enemy in ctx.enemies:

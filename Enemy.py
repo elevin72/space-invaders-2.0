@@ -1,5 +1,3 @@
-from Player import *
-from Powerup import *
 from Ship import *
 from Laser import *
 
